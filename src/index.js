@@ -9,6 +9,7 @@ const port = process.env.PORT || 8082;
 
 app.use(express.json());
 
+// create a user
 app.post('/users', (req, res) => {
     const user = new User(req.body);
 
@@ -19,14 +20,27 @@ app.post('/users', (req, res) => {
     });
 });
 
+// get full list of users
 app.get('/users', (req, res) => {
     User.find({}).then((users) => {
         res.status(200).send(users);
     }).catch((e) => {
-        res.status(400).send(e);
+        res.status(500).send(e);
     });
 });
 
+// get user by id
+app.get('/users/:id', (req, res) => {
+    const _id = req.params.id;
+
+    User.findById(_id).then((user) => {
+        res.status(200).send(user);
+    }).catch((e) => {
+        res.status(500).send(e);
+    });
+});
+
+// create a task
 app.post('/tasks', (req, res) => {
     const task = new Task(req.body);
 
