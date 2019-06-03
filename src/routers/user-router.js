@@ -1,6 +1,8 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
+const auth = require('../middleware/auth');
+
 const userRouter = express.Router();
 
 // create a user
@@ -9,7 +11,8 @@ userRouter.post('/users', async (req, res) => {
 
     try {
         await user.save();
-        res.status(201).send(user);
+        const token = await user.generateAuthToken();
+        res.status(201).send({ user, token });
     } catch (e) {
         res.status(400).send(e);
     }
@@ -19,7 +22,8 @@ userRouter.post('/users', async (req, res) => {
 userRouter.post('/users/login', async (req, res) => {
     try {
         const user = await User.findByCredentials(req.body.email, req.body.password);
-        res.send(user);
+        const token = await user.generateAuthToken();
+        res.send({ user, token });
     } catch (e) {
         console.log(e);
         res.status(400).send(e);
@@ -27,17 +31,12 @@ userRouter.post('/users/login', async (req, res) => {
 });
 
 // get full list of users
-userRouter.get('/users', async (req, res) => {
-    try {
-        const users = await User.find({});
-        res.status(200).send(users);
-    } catch (e) {
-        res.status(500).send(e);
-    }
+userRouter.get('/users/me', auth, async (req, res) => {
+    res.send(req.user);
 });
 
 // get user by id
-userRouter.get('/users/:id', async (req, res) => {
+userRouter.get('/users/:id', auth, async (req, res) => {
     const _id = req.params.id;
 
     try {
