@@ -28,9 +28,3 @@ app.use(taskRouter);
 app.listen(port, () => {
     console.log(`Server is running on port ${ port }`);
 });
-
-const pet = {
-    name: 'Hal 9000'
-}
-
-console.log(JSON.stringify(pet));

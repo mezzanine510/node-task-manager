@@ -3,10 +3,10 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const auth = require('../middleware/auth');
 
-const userRouter = express.Router();
+const router = express.Router();
 
 // create a user
-userRouter.post('/users', async (req, res) => {
+router.post('/users', async (req, res) => {
     const user = new User(req.body);
 
     try {
@@ -20,7 +20,7 @@ userRouter.post('/users', async (req, res) => {
 });
 
 // login
-userRouter.post('/users/login', async (req, res) => {
+router.post('/users/login', async (req, res) => {
     try {
         const user = await User.findByCredentials(req.body.email, req.body.password);
         const token = await user.generateAuthToken();
@@ -31,14 +31,13 @@ userRouter.post('/users/login', async (req, res) => {
 });
 
 // logout
-userRouter.post('/users/logout', auth, async (req, res) => {
+router.post('/users/logout', auth, async (req, res) => {
     try {
         req.user.tokens = req.user.tokens.filter((token) => {
             return token.token !== req.token;
         });
 
         await req.user.save();
-
         res.send();
     } 
     catch (e) {
@@ -47,7 +46,7 @@ userRouter.post('/users/logout', auth, async (req, res) => {
 });
 
 // logout of all sessions
-userRouter.post('/users/logoutAll', auth, async (req, res) => {
+router.post('/users/logoutAll', auth, async (req, res) => {
     try {
         req.user.tokens = [];
 
@@ -61,30 +60,12 @@ userRouter.post('/users/logoutAll', auth, async (req, res) => {
 });
 
 // get user profile when authenticated
-userRouter.get('/users/me', auth, async (req, res) => {
+router.get('/users/me', auth, async (req, res) => {
     res.send(req.user);
 });
 
-// get user by id
-userRouter.get('/users/:id', auth, async (req, res) => {
-    const _id = req.params.id;
-
-    try {
-        const user = await User.findById(_id);
-
-        if (!user) {
-            return res.status(404).send();
-        }
-
-        res.status(200).send(user);
-    }
-    catch (e) {
-        res.status(500).send(e);
-    }
-});
-
 // update user
-userRouter.patch('/users/:id', async (req, res) => {
+router.patch('/users/me', auth, async (req, res) => {
     const updates = Object.keys(req.body);
     const allowedUpdates = [ 'name', 'email', 'password', 'age' ];
     const isValidOperation = updates.every((update) => {
@@ -95,24 +76,16 @@ userRouter.patch('/users/:id', async (req, res) => {
         return res.status(400).send({ error: 'Invalid updates.' });
     }
 
-    const _id = req.params.id;
-
     try {
-        const user = await User.findById(req.params.id)
+        // const user = await User.findById(_id)
 
         updates.forEach((update) => {
-            user[update] = req.body[update];
+            req.user[update] = req.body[update];
         });
 
-        await user.save();
+        await req.user.save();
 
-        // const user = await User.findByIdAndUpdate(_id, req.body, { new: true, runValidators: true });
-
-        if (!user) {
-            res.status(404).send();
-        }
-
-        res.status(200).send(user);
+        res.send(req.user);
     }
     catch (e) {
         res.status(500).send();
@@ -120,21 +93,20 @@ userRouter.patch('/users/:id', async (req, res) => {
 });
 
 // delete user
-userRouter.delete('/users/:id', async (req, res) => {
-    const _id = req.params.id;
-
+router.delete('/users/me', auth, async (req, res) => {
     try {
-        const user = await User.findByIdAndDelete(_id);
+        await req.user.remove();
+        res.send(req.user);
 
-        if (!user) {
-            return res.status(404).send();
-        }
-
-        res.send(user);
+        // old method not necessary since auth handles user
+        // const user = await User.findByIdAndDelete(req.user._id);
+        // if (!user) {
+        //     return res.status(404).send();
+        // }
     }
     catch (e) {
         res.status(500).send(e);
     }
 });
 
-module.exports = userRouter;
+module.exports = router;
