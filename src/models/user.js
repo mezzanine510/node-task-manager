@@ -49,7 +49,18 @@ const userSchema = new mongoose.Schema({
     }]
 });
 
-// standard function definition since we'll need access to use 'this'
+// get public profile by removing sensitive data from user instance
+userSchema.methods.toJSON = function () {
+    const user = this;
+    const userObject = user.toObject();
+
+    delete userObject.password;
+    delete userObject.tokens;
+
+    return userObject;
+};
+
+// generate an auth token
 userSchema.methods.generateAuthToken = async function() {
     const user = this;
     const token = jwt.sign({ _id: user._id.toString() }, 'thisisatestsecretfortokensigning');
@@ -59,6 +70,7 @@ userSchema.methods.generateAuthToken = async function() {
     return token;
 }
 
+// find user by credentials
 userSchema.statics.findByCredentials = async (email, password) => {
     const user = await User.findOne({ email });
 

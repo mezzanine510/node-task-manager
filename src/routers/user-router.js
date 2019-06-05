@@ -13,7 +13,8 @@ userRouter.post('/users', async (req, res) => {
         await user.save();
         const token = await user.generateAuthToken();
         res.status(201).send({ user, token });
-    } catch (e) {
+    } 
+    catch (e) {
         res.status(400).send(e);
     }
 });
@@ -25,12 +26,41 @@ userRouter.post('/users/login', async (req, res) => {
         const token = await user.generateAuthToken();
         res.send({ user, token });
     } catch (e) {
-        console.log(e);
         res.status(400).send(e);
     }
 });
 
-// get full list of users
+// logout
+userRouter.post('/users/logout', auth, async (req, res) => {
+    try {
+        req.user.tokens = req.user.tokens.filter((token) => {
+            return token.token !== req.token;
+        });
+
+        await req.user.save();
+
+        res.send();
+    } 
+    catch (e) {
+        res.status(500).send(e);
+    }
+});
+
+// logout of all sessions
+userRouter.post('/users/logoutAll', auth, async (req, res) => {
+    try {
+        req.user.tokens = [];
+
+        await req.user.save();
+
+        res.send();
+    }
+    catch (e) {
+        res.status(500).send(e);
+    }
+});
+
+// get user profile when authenticated
 userRouter.get('/users/me', auth, async (req, res) => {
     res.send(req.user);
 });
@@ -47,7 +77,8 @@ userRouter.get('/users/:id', auth, async (req, res) => {
         }
 
         res.status(200).send(user);
-    } catch (e) {
+    }
+    catch (e) {
         res.status(500).send(e);
     }
 });
@@ -82,7 +113,8 @@ userRouter.patch('/users/:id', async (req, res) => {
         }
 
         res.status(200).send(user);
-    } catch (e) {
+    }
+    catch (e) {
         res.status(500).send();
     }
 });
@@ -99,7 +131,8 @@ userRouter.delete('/users/:id', async (req, res) => {
         }
 
         res.send(user);
-    } catch (e) {
+    }
+    catch (e) {
         res.status(500).send(e);
     }
 });
