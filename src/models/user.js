@@ -49,6 +49,13 @@ const userSchema = new mongoose.Schema({
     }]
 });
 
+// virtual properties aren't actually stored in the database - in this case they form a relationship between the User and the Tasks related to that User. Tasks store their owner, but owners do not store their tasks
+userSchema.virtual('tasks', {
+    ref: 'Task',
+    localField: '_id',
+    foreignField: 'owner'
+});
+
 // get public profile by removing sensitive data from user instance
 userSchema.methods.toJSON = function () {
     const user = this;
