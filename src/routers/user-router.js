@@ -4,7 +4,20 @@ const User = require('../models/user');
 const auth = require('../middleware/auth');
 
 const upload = multer({
-    dest: 'avatars'
+    dest: 'avatars',
+    limits: {
+        fileSize: 1000000
+    },
+    fileFilter(req, file, callback) {
+        if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+            return callback(new Error('Image must be a jpg or png.'));
+        };
+        
+        callback(undefined, true);
+        // callback(new Error('File must be a PDF'));
+        // callback(undefined, true);
+        // callback(undefined, false);
+    }
 });
 
 const router = express.Router();
