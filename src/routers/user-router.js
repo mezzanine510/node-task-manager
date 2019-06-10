@@ -1,7 +1,11 @@
 const express = require('express');
-const bcrypt = require('bcryptjs');
+const multer = require('multer');
 const User = require('../models/user');
 const auth = require('../middleware/auth');
+
+const upload = multer({
+    dest: 'avatars'
+});
 
 const router = express.Router();
 
@@ -57,6 +61,10 @@ router.post('/users/logoutAll', auth, async (req, res) => {
     catch (e) {
         res.status(500).send(e);
     }
+});
+
+router.post('/users/me/avatar', upload.single('avatar'), (req, res) => {
+    res.send();
 });
 
 // get user profile when authenticated

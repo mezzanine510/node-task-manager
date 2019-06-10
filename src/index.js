@@ -7,6 +7,17 @@ const app = express();
 
 const port = process.env.PORT || 8082;
 
+
+const multer = require('multer');
+const upload = multer({
+    dest: 'image-uploads'
+});
+
+app.post('/upload', upload.single('file'), (req, res) => {
+    res.send();
+});
+
+
 // app.use((req, res, next) => {
 //     res.status(503).send('Server is currently under maintenance. Please come back later!');
     
