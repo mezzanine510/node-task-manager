@@ -23,11 +23,28 @@ taskRouter.post('/tasks', auth, async (req, res) => {
 });
 
 // get task list
+// GET /tasks?completed=true gets only completed tasks
+// GET /tasks?limit=10&skip=20 limits query to 10 items per page and skips past the 20th item (starts at page 3, or the 21st item)
 taskRouter.get('/tasks', auth, async (req, res) => {
+    const match = {}
+    const limit = req.query.limit;
+    const skip = req.query.skip;
+
+    if (req.query.completed) {
+        match.completed = req.query.completed === 'true';
+    }
+
     try {
         // alternative method without using model refs
         // const tasks = await Task.find({ owner: req.user._id });
-        await req.user.populate('tasks').execPopulate();
+        await req.user.populate({
+            path: 'tasks',
+            match,
+            options: {
+                limit: parseInt(limit),
+                skip: parseInt(skip)
+            }
+        }).execPopulate();
         res.status(200).send(req.user.tasks);
     } 
     catch (e) {
@@ -41,7 +58,7 @@ taskRouter.get('/tasks/:id', auth, async (req, res) => {
 
     try {
         // const task = await Task.findById(_id);
-        const task = await Task.findOne( { _id, owner: req.user._id })
+        const task = await Task.findOne({ _id, owner: req.user._id });
 
         if (!task) {
             res.status(404).send();
@@ -80,7 +97,7 @@ taskRouter.patch('/tasks/:id', auth, async (req, res) => {
         await task.save();
 
         return res.send(task);
-    } 
+    }
     catch (e) {
         res.status(500).send(e);
     }
