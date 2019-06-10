@@ -28,6 +28,8 @@ const upload = multer({
 
 app.post('/upload', upload.single('file'), (req, res) => {
     res.send();
+}, (err, req, res, next) => {
+    res.status(400).send({ error: err.message });
 });
 
 
