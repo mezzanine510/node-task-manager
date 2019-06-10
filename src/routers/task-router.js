@@ -24,14 +24,21 @@ taskRouter.post('/tasks', auth, async (req, res) => {
 
 // get task list
 // GET /tasks?completed=true gets only completed tasks
-// GET /tasks?limit=10&skip=20 limits query to 10 items per page and skips past the 20th item (starts at page 3, or the 21st item)
+// GET /tasks?limit=10&skip=20
+// GET /tasks?sortBy=createdAt:desc
 taskRouter.get('/tasks', auth, async (req, res) => {
     const match = {}
     const limit = req.query.limit;
     const skip = req.query.skip;
+    const sort = {};
 
     if (req.query.completed) {
         match.completed = req.query.completed === 'true';
+    }
+
+    if (req.query.sortBy) {
+        const parts = req.query.sortBy.split(':');
+        sort[parts[0]] = parts[1] === 'desc' ? -1 : 1;
     }
 
     try {
@@ -42,7 +49,8 @@ taskRouter.get('/tasks', auth, async (req, res) => {
             match,
             options: {
                 limit: parseInt(limit),
-                skip: parseInt(skip)
+                skip: parseInt(skip),
+                sort
             }
         }).execPopulate();
         res.status(200).send(req.user.tasks);
