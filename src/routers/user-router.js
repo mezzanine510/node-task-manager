@@ -31,7 +31,7 @@ router.post('/users', async (req, res) => {
         res.status(201).send({ user, token });
     } 
     catch (e) {
-        res.status(400).send(e);
+        res.status(400).send();
     }
 });
 
@@ -42,7 +42,7 @@ router.post('/users/login', async (req, res) => {
         const token = await user.generateAuthToken();
         res.send({ user, token });
     } catch (e) {
-        res.status(400).send(e);
+        res.status(400).send();
     }
 });
 
@@ -57,7 +57,7 @@ router.post('/users/logout', auth, async (req, res) => {
         res.send();
     } 
     catch (e) {
-        res.status(500).send(e);
+        res.status(500).send();
     }
 });
 
@@ -71,7 +71,7 @@ router.post('/users/logoutAll', auth, async (req, res) => {
         res.send();
     }
     catch (e) {
-        res.status(500).send(e);
+        res.status(500).send();
     }
 });
 
@@ -84,7 +84,7 @@ router.post('/users/me/avatar', auth, upload.single('avatar'), async (req, res) 
 });
 
 // get user profile when authenticated
-router.get('/users/me', auth, async (req, res) => {
+router.get('/users/me', auth, (req, res) => {
     res.send(req.user);
 });
 
@@ -129,7 +129,7 @@ router.delete('/users/me', auth, async (req, res) => {
         // }
     }
     catch (e) {
-        res.status(500).send(e);
+        res.status(500).send();
     }
 });
 
@@ -141,7 +141,22 @@ router.delete('/users/me/avatar', auth, async (req, res) => {
         res.send();
     }
     catch (e) {
-        res.status(500).send(e);
+        res.status(500).send();
+    }
+});
+
+router.get('/users/:id/avatar', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+
+        if (!user || !user.avatar) {
+            throw new Error();
+        }
+
+        res.set('Content-Type', 'image/jpg');
+        res.send(user.avatar);
+    } catch (e) {
+        res.status(404).send();
     }
 });
 

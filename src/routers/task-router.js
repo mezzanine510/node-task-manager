@@ -56,7 +56,7 @@ taskRouter.get('/tasks', auth, async (req, res) => {
         res.status(200).send(req.user.tasks);
     } 
     catch (e) {
-        res.status(500).send(e);
+        res.status(500).send();
     }
 });
 
@@ -75,7 +75,7 @@ taskRouter.get('/tasks/:id', auth, async (req, res) => {
         res.status(200).send(task);
     } 
     catch (e) {
-        res.status(500).send(e);
+        res.status(500).send();
     }
 });
 
@@ -107,7 +107,7 @@ taskRouter.patch('/tasks/:id', auth, async (req, res) => {
         return res.send(task);
     }
     catch (e) {
-        res.status(500).send(e);
+        res.status(500).send();
     }
 });
 
@@ -123,7 +123,7 @@ taskRouter.delete('/tasks/:id', auth, async (req, res) => {
         res.send(task);
     } 
     catch (e) {
-        res.status(500).send(e);
+        res.status(500).send();
     }
 });
 
