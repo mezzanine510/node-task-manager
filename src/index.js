@@ -5,9 +5,9 @@ const taskRouter = require('./routers/task-router');
 
 const app = express();
 
-const port = process.env.PORT || 8082;
+const port = process.env.PORT;
 
-// maintenance test
+// maintenance
 // app.use((req, res, next) => {
 //     res.status(503).send('Server is currently under maintenance. Please come back later!');
     

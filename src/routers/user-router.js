@@ -3,6 +3,9 @@ const multer = require('multer');
 const sharp = require('sharp');
 const User = require('../models/user');
 const auth = require('../middleware/auth');
+const { sendWelcomeEmail, sendCancellationEmail } = require('../emails/account');
+
+const router = express.Router();
 
 const upload = multer({
     limits: {
@@ -14,13 +17,8 @@ const upload = multer({
         };
         
         callback(undefined, true);
-        // callback(new Error('File must be a PDF'));
-        // callback(undefined, true);
-        // callback(undefined, false);
     }
 });
-
-const router = express.Router();
 
 // create a user
 router.post('/users', async (req, res) => {
@@ -28,6 +26,7 @@ router.post('/users', async (req, res) => {
 
     try {
         await user.save();
+        await sendWelcomeEmail(user.email, user.name);
         const token = await user.generateAuthToken();
         res.status(201).send({ user, token });
     } 
@@ -122,6 +121,7 @@ router.patch('/users/me', auth, async (req, res) => {
 router.delete('/users/me', auth, async (req, res) => {
     try {
         await req.user.remove();
+        await sendCancellationEmail(req.user.email, req.user.name);
         res.send(req.user);
 
         // old method not necessary since auth handles user
