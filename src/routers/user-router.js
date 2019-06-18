@@ -84,7 +84,7 @@ router.post('/users/me/avatar', auth, upload.single('avatar'), async (req, res) 
     res.status(400).send({ error: error.message });
 });
 
-// get user profile when authenticated
+// get user profile
 router.get('/users/me', auth, (req, res) => {
     res.send(req.user);
 });
@@ -145,6 +145,7 @@ router.delete('/users/me/avatar', auth, async (req, res) => {
     }
 });
 
+// get user avatar by id
 router.get('/users/:id/avatar', async (req, res) => {
     try {
         const user = await User.findById(req.params.id);

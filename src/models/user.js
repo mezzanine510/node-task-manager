@@ -56,7 +56,7 @@ const userSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// virtual properties aren't actually stored in the database - in this case they form a relationship between the User and the Tasks related to that User. Tasks store their owner, but owners do not store their tasks
+// virtual properties aren't actually stored in the database - in this case they form a relationship between the User and the Tasks related to that User. Tasks store their owners, but noce vice versa.
 userSchema.virtual('tasks', {
     ref: 'Task',
     localField: '_id',
