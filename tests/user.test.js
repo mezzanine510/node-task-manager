@@ -40,7 +40,7 @@ test('Should login existing user', async () => {
     expect(response.body.token).toBe(user.tokens[ 1 ].token);
 });
 
-test('Should not login nonexistent user', async() => {
+test('Should not login non-existent user', async() => {
     await supertest(app).post('/users/login').send({
         email: 'blargg@poop.dadjokes',
         password: 'LADDIE432'
